@@ -1,5 +1,7 @@
 # Smart Logistics & Delivery Management API
 
+[![CI](https://github.com/Safaismaill/smart-logistics-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Safaismaill/smart-logistics-system/actions/workflows/ci.yml) 
+
 A backend REST API for managing delivery records, developed using Java, Spring Boot and PostgreSQL.
 
 The project demonstrates RESTful API development, CRUD operations, database persistence, search and filtering, input validation, exception handling and automated unit testing.
@@ -15,6 +17,7 @@ The project demonstrates RESTful API development, CRUD operations, database pers
 - Maven
 - JUnit 5
 - Mockito
+- GitHub Actions (CI)
 
 ## Features
 
@@ -30,9 +33,9 @@ The project demonstrates RESTful API development, CRUD operations, database pers
 - Validate required delivery information
 - Return meaningful `400 Bad Request` responses for invalid input
 - Return `404 Not Found` responses when a delivery does not exist
-- Persistent PostgreSQL database storage
-- Automated controller unit tests
-
+- Store delivery records in PostgreSQL
+- Run automated tests through GitHub Actions
+  
 ## Architecture
 
 The application follows a simple layered structure:
@@ -156,7 +159,8 @@ The application uses PostgreSQL for persistent storage.
 
 Spring Data JPA and Hibernate are used to map Java `Delivery` objects to records in the PostgreSQL `delivery` table.
 
-Database credentials are supplied through environment variables rather than being stored directly in the source code.
+The database password is supplied through an environment variable.
+The database URL and username have local defaults and can also be overridden using environment variables.
 
 ## Configuration
 
@@ -204,7 +208,7 @@ SmartLogisticsApiApplication
 Alternatively, using the Maven Wrapper on Windows:
 
 ```text
-mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run
 ```
 
 The API will be available at:
@@ -234,6 +238,28 @@ Current controller tests cover:
 
 The project also contains a Spring Boot context test to confirm that the application starts successfully.
 
+The controller tests use a mocked repository and do not require PostgreSQL. The Spring Boot context test requires a working database connection. These controller tests check Java method behaviour rather than HTTP responses or request validation.
+ 
+## Continuous Integration
+
+A GitHub Actions workflow runs automatically when code is pushed to `main` or a pull request is opened or updated.
+
+The workflow:
+
+1. Checks out the project code.
+2. Uses a temporary PostgreSQL database for testing.
+3. Sets up Java 21.
+4. Caches Maven dependencies to speed up future runs.
+5. Builds the project and runs the configured tests using `mvn -B verify`.
+
+The workflow is stored in:
+
+```text
+.github/workflows/ci.yml
+```
+
+The CI badge at the top of this README links to the workflow results.
+   
 ## Project Structure
 
 ```text
@@ -264,14 +290,11 @@ This project provided practical experience with:
 - JSON request and response handling
 - Java object-oriented programming
 - Dependency injection
-- PostgreSQL database persistence
-- Spring Data JPA
-- Hibernate
-- Input validation
-- Custom exception handling
+- Storing data with PostgreSQL, Spring Data JPA and Hibernate
+- Validating input and handling exceptions
 - Search and filtering using query parameters
-- JUnit 5 testing
-- Mockito mocking
+- Writing JUnit tests with Mockito
+- Setting up continuous integration with GitHub Actions
 
 ## Future Improvements
 
