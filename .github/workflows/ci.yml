@@ -1,0 +1,57 @@
+name: CI
+
+# Run when code is pushed to main or a pull request is opened or updated
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Allow the workflow to read the repository
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    # Use an Ubuntu machine to run the build
+    runs-on: ubuntu-latest
+
+    # Create a temporary PostgreSQL database for the tests
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: logistics
+          POSTGRES_USER: logistics
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+
+        # Check that PostgreSQL is ready before starting the tests
+        options: >-
+          --health-cmd "pg_isready -U logistics -d logistics"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Provide the database values used in application.properties
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/logistics
+      DB_USERNAME: logistics
+      DB_PASSWORD: ci_password
+
+    steps:
+      # Get the project code from the repository
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Set up Java 21 and cache Maven dependencies
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # Build the project and run the tests
+      - name: Build and run tests
+        run: mvn -B verify
